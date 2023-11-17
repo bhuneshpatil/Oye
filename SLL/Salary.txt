@@ -1,0 +1,49 @@
+#################################################################################
+CREATE TABLE Employee (
+    Empid INT PRIMARY KEY,
+    Name VARCHAR(50),
+    BasicSalary DECIMAL(10, 2),
+    Type VARCHAR(20)
+);
+
+CREATE TABLE Salary (
+    Empid INT PRIMARY KEY,
+    GrossSalary DECIMAL(10, 2),
+    Deductions DECIMAL(10, 2),
+    NetSalary DECIMAL(10, 2)
+);
+
+DELIMITER //
+
+CREATE PROCEDURE CalculateSalary (IN p_Empid INT)
+BEGIN
+    DECLARE v_BasicSalary DECIMAL(10, 2);
+    DECLARE v_Type VARCHAR(20);
+    DECLARE v_GrossSalary DECIMAL(10, 2);
+    DECLARE v_NetSalary DECIMAL(10, 2);
+
+    SELECT BasicSalary, Type INTO v_BasicSalary, v_Type FROM Employee WHERE Empid = p_Empid;
+
+    IF v_Type = 'Permanent' THEN
+        SET v_GrossSalary := LEAST(v_BasicSalary * 2.27, v_BasicSalary + 20000);
+        SET v_NetSalary := v_GrossSalary - 2000;
+    ELSEIF v_Type = 'Temporary' THEN
+        SET v_GrossSalary := v_BasicSalary;
+        SET v_NetSalary := v_GrossSalary - 2000;
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid employee type';
+    END IF;
+
+    INSERT INTO Salary (Empid, GrossSalary, Deductions, NetSalary)
+    VALUES (p_Empid, v_GrossSalary, 2000, v_NetSalary);
+
+    SELECT 'Employee ID: ', p_Empid, 'Gross Salary: ', v_GrossSalary, 'Deductions: ', 2000, 'Net Salary: ', v_NetSalary;
+
+END //
+
+DELIMITER ;
+
+-- Sample Call to the Procedure
+CALL CalculateSalary(1);
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

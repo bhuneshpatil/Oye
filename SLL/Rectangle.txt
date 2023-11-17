@@ -1,0 +1,47 @@
+###############################################################
+-- Create the areas table
+CREATE TABLE areas (
+    length INT,
+    breadth INT,
+    area INT,
+    perimeter INT
+);
+
+-- Create a stored procedure to calculate and insert values
+DELIMITER //
+
+CREATE PROCEDURE CalculateRectangleProperties()
+BEGIN
+    DECLARE v_length INT;
+    DECLARE v_breadth INT;
+    DECLARE v_area INT;
+    DECLARE v_perimeter INT;
+
+    -- Loop through length values from 10 to 20
+    SET v_length = 10;
+    WHILE v_length <= 20 DO
+        -- Given breadth is 10
+        SET v_breadth = 10;
+
+        -- Calculate area and perimeter
+        SET v_area = v_length * v_breadth;
+        SET v_perimeter = 2 * (v_length + v_breadth);
+
+        -- Insert values into the areas table
+        INSERT INTO areas (length, breadth, area, perimeter)
+        VALUES (v_length, v_breadth, v_area, v_perimeter);
+
+        -- Increment length for the next iteration
+        SET v_length = v_length + 1;
+    END WHILE;
+END //
+
+DELIMITER ;
+
+-- Call the stored procedure to calculate and insert values
+CALL CalculateRectangleProperties();
+
+-- View the areas table
+SELECT * FROM areas;
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

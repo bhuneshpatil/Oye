@@ -1,0 +1,26 @@
+###############################################################
+SELECT *
+INTO OUTFILE '/path/to/output/file.csv'
+FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+FROM your_table;
+
+SELECT *
+INTO OUTFILE '/path/to/output/file.txt'
+FIELDS TERMINATED BY '\t' OPTIONALLY ENCLOSED BY '"'
+LINES TERMINATED BY '\r\n'
+FROM your_table;
+
+LOAD DATA INFILE '/path/to/input/file.csv'
+INTO TABLE your_table
+FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS; -- Skip header if present
+
+LOAD DATA INFILE '/path/to/input/file.txt'
+INTO TABLE your_table
+FIELDS TERMINATED BY '\t' OPTIONALLY ENCLOSED BY '"'
+LINES TERMINATED BY '\r\n'
+IGNORE 1 ROWS; -- Skip header if present
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

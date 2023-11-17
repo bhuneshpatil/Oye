@@ -1,0 +1,58 @@
+#######################################################################################
+CREATE TABLE Borrower (
+    Roll_no INT,
+    Name VARCHAR(50),
+    Date_of_Issue DATE,
+    Name_of_Book VARCHAR(50),
+    Status CHAR(1)
+);
+
+CREATE TABLE Fine (
+    Roll_no INT,
+    Date DATE,
+    Amount INT
+);
+
+DELIMITER //
+
+CREATE PROCEDURE CalculateFine(IN borrower_roll_no INT, IN book_name VARCHAR(50))
+BEGIN
+    DECLARE issue_date DATE;
+    DECLARE borrower_status CHAR(1);
+    DECLARE fine_amount INT;
+    DECLARE days_late INT;
+
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION ROLLBACK;
+
+    SELECT Date_of_Issue, Status INTO issue_date, borrower_status
+    FROM Borrower
+    WHERE Roll_no = borrower_roll_no AND Name_of_Book = book_name;
+
+    SET days_late = DATEDIFF(CURDATE(), issue_date);
+
+    IF days_late BETWEEN 15 AND 30 THEN
+        SET fine_amount = 5 * days_late;
+    ELSEIF days_late > 30 THEN
+        SET fine_amount = 50 * days_late;
+    ELSE
+        SET fine_amount = 0;
+    END IF;
+
+    UPDATE Borrower
+    SET Status = 'R'
+    WHERE Roll_no = borrower_roll_no AND Name_of_Book = book_name;
+
+    IF fine_amount > 0 THEN
+        INSERT INTO Fine (Roll_no, Date, Amount)
+        VALUES (borrower_roll_no, CURDATE(), fine_amount);
+    END IF;
+
+    COMMIT;
+END //
+
+DELIMITER ;
+
+-- Example usage
+CALL CalculateFine(1, 'Book1');
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

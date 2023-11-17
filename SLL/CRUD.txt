@@ -1,0 +1,54 @@
+############################################################################################
+// 1. Create a collection named books1
+db.createCollection("books1")
+
+// 2. Insert 5 records with fields TITLE, DESCRIPTION, BY, URL, TAGS, AND LIKES
+db.books1.insertMany([
+    { TITLE: "MongoDB Basics", DESCRIPTION: "Introduction to MongoDB", BY: "Alice", URL: "www.example.com/1", TAGS: ["NoSQL", "Database"], LIKES: 15 },
+    { TITLE: "Mastering MongoDB", DESCRIPTION: "Advanced MongoDB Concepts", BY: "Bob", URL: "www.example.com/2", TAGS: ["Advanced", "Database"], LIKES: 20 },
+    { TITLE: "MongoDB for Beginners", DESCRIPTION: "Getting Started with MongoDB", BY: "Charlie", URL: "www.example.com/3", TAGS: ["Beginner", "Database"], LIKES: 8 },
+    { TITLE: "MongoDB in Practice", DESCRIPTION: "Real-world Examples", BY: "David", URL: "www.example.com/4", TAGS: ["Practical", "Database"], LIKES: 12 },
+    { TITLE: "MongoDB Cookbook", DESCRIPTION: "Recipes for MongoDB", BY: "Alice", URL: "www.example.com/5", TAGS: ["Cookbook", "Database"], LIKES: 18 }
+])
+
+// 3. Insert 1 more document in the collection with an additional field of user name and comments
+db.books1.insertOne({
+    TITLE: "MongoDB Usage Tips",
+    DESCRIPTION: "Tips for Efficient MongoDB Usage",
+    BY: "John",
+    URL: "www.example.com/6",
+    TAGS: ["Tips", "Database"],
+    LIKES: 25,
+    USER_NAME: "User1",
+    COMMENTS: ["Useful tips!", "Great insights!"]
+})
+
+// 4. Display all the documents whose title is 'mongodb'
+db.books1.find({ TITLE: "mongodb" })
+
+// 5. Display all the documents written by 'john' or whose title is 'mongodb'
+db.books1.find({ $or: [{ BY: "john" }, { TITLE: "mongodb" }] })
+
+// 6. Display all the documents whose title is 'mongodb' and written by 'john'
+db.books1.find({ TITLE: "mongodb", BY: "john" })
+
+// 7. Display all the documents whose like is greater than 10
+db.books1.find({ LIKES: { $gt: 10 } })
+
+// 8. Display the second document published by 'john'
+db.books1.find({ BY: "john" }).skip(1).limit(1)
+
+// 9. Display all the books in sorted fashion
+db.books1.find().sort({ TITLE: 1 })
+
+// 10. Find the average number of likes for books published by john
+db.books1.aggregate([
+    { $match: { BY: "john" } },
+    { $group: { _id: null, avgLikes: { $avg: "$LIKES" } } }
+])
+
+// 11. Find the first and last book published by john
+db.books1.find({ BY: "john" }).sort({ _id: 1 }).limit(1)
+db.books1.find({ BY: "john" }).sort({ _id: -1 }).limit(1)
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

@@ -1,0 +1,73 @@
+###################################################################################################
+-- 1. Create tables using proper primary keys
+CREATE TABLE account (
+    acc_no INT PRIMARY KEY,
+    branch_name VARCHAR(255),
+    balance DECIMAL(10, 2)
+);
+
+CREATE TABLE depositor (
+    cust_name VARCHAR(255),
+    acc_no INT,
+    PRIMARY KEY (cust_name, acc_no),
+    FOREIGN KEY (acc_no) REFERENCES account(acc_no)
+);
+
+CREATE TABLE borrower (
+    cust_name VARCHAR(255),
+    loan_no INT,
+    PRIMARY KEY (cust_name, loan_no)
+);
+
+CREATE TABLE loan (
+    loan_no INT PRIMARY KEY,
+    branch_name VARCHAR(255),
+    amount DECIMAL(10, 2)
+);
+
+-- 2. Update information of a particular customer
+UPDATE depositor SET acc_no = new_acc_no WHERE cust_name = 'CustomerName';
+
+-- 3. Find customers having a loan less than 1 lac
+SELECT cust_name FROM borrower WHERE loan_no IN (SELECT loan_no FROM loan WHERE amount < 100000);
+
+-- 4. Display account number and customer name starting with 'P'
+SELECT acc_no, cust_name FROM depositor WHERE cust_name LIKE 'P%';
+
+-- 5. Display name of the depositor with balance
+SELECT d.cust_name, a.balance
+FROM depositor d
+JOIN account a ON d.acc_no = a.acc_no;
+
+-- 6. Find names of all customers who have a loan at the 'Redwood branch'
+SELECT b.cust_name
+FROM borrower b
+JOIN loan l ON b.loan_no = l.loan_no
+WHERE l.branch_name = 'Redwood';
+
+-- 7. Find all customers who have an account and loan or both
+SELECT DISTINCT d.cust_name
+FROM depositor d
+JOIN borrower b ON d.cust_name = b.cust_name
+UNION
+SELECT d.cust_name
+FROM depositor d
+WHERE d.cust_name IN (SELECT cust_name FROM borrower);
+
+-- 8. Find all customers who do not have a loan
+SELECT d.cust_name
+FROM depositor d
+WHERE d.cust_name NOT IN (SELECT cust_name FROM borrower);
+
+-- 9. Find average account balance at each branch
+SELECT branch_name, AVG(balance) AS avg_balance
+FROM account
+GROUP BY branch_name;
+
+-- 10. Find the name of the borrower having the maximum loan amount
+SELECT b.cust_name
+FROM borrower b
+JOIN loan l ON b.loan_no = l.loan_no
+WHERE l.amount = (SELECT MAX(amount) FROM loan);
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

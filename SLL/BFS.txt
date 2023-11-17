@@ -1,0 +1,39 @@
+###############################################################
+from collections import deque
+
+# Breadth-First Search (BFS)
+def bfs(graph, start):
+    visited, queue = set(), deque([start])
+    while queue:
+        node = queue.popleft()
+        if node not in visited:
+            print(node, end=' ')
+            visited.add(node)
+            queue.extend(graph[node] - visited)
+
+# Depth-First Search (DFS)
+def dfs(graph, start, visited=None):
+    visited = visited or set()
+    if start not in visited:
+        print(start, end=' ')
+        visited.add(start)
+        [dfs(graph, neighbor, visited) for neighbor in graph[start] - visited]
+
+# Example Usage with a predefined graph
+example_graph = {
+    'A': {'B', 'C'},
+    'B': {'A', 'D', 'E'},
+    'C': {'A', 'F', 'G'},
+    'D': {'B'},
+    'E': {'B'},
+    'F': {'C'},
+    'G': {'C'}
+}
+
+print("BFS Traversal:")
+bfs(example_graph, 'A')
+
+print("\nDFS Traversal:")
+dfs(example_graph, 'A')
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

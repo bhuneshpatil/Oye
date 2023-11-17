@@ -1,0 +1,255 @@
+#######################################################################################
+-- 1. DDL to implement the schema with constraints
+
+-- Create Department table
+CREATE TABLE Dept (
+    Deptno INT PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL,
+    Location VARCHAR(255) NOT NULL,
+    Managerempid INT,
+    CONSTRAINT chk_gender CHECK (gender IN ('M', 'F')),
+    FOREIGN KEY (Managerempid) REFERENCES Employees(empid)
+);
+
+-- Create Employees table
+CREATE TABLE Employees (
+    empid INT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    address VARCHAR(255),
+    city VARCHAR(255),
+    dob DATE,
+    date_of_joining DATE,
+    gender CHAR(1) CHECK (gender IN ('M', 'F')),
+    salary DECIMAL(10, 2),
+    deptno INT,
+    FOREIGN KEY (deptno) REFERENCES Dept(Deptno)
+);
+
+-- Create Project table
+CREATE TABLE Project (
+    Projectid INT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    city VARCHAR(255)
+);
+
+-- Create Works table
+CREATE TABLE Works (
+    empid INT,
+    Projectid INT,
+    total_hrs_worked INT,
+    PRIMARY KEY (empid, Projectid),
+    FOREIGN KEY (empid) REFERENCES Employees(empid),
+    FOREIGN KEY (Projectid) REFERENCES Project(Projectid)
+);
+
+-- Create Dependant table
+CREATE TABLE Dependant (
+    empid INT,
+    name_of_dependant VARCHAR(255) NOT NULL,
+    age INT,
+    relation VARCHAR(255),
+    PRIMARY KEY (empid, name_of_dependant),
+    FOREIGN KEY (empid) REFERENCES Employees(empid)
+);
+
+-- 2. Insert data into each table
+
+-- Insert into Department table
+INSERT INTO Dept VALUES (1, 'IT Department', 'New York', NULL);
+
+-- Insert into Employees table
+INSERT INTO Employees VALUES (101, 'John Doe', '123 Main St', 'New York', '1990-01-01', '2020-01-01', 'M', 60000, 1);
+
+-- Insert into Project table
+INSERT INTO Project VALUES (501, 'ERP Project', 'New York');
+
+-- Insert into Works table
+INSERT INTO Works VALUES (101, 501, 40);
+
+-- Insert into Dependant table
+INSERT INTO Dependant VALUES (101, 'Jane Doe', 25, 'Spouse');
+
+-- 3. SQL query to display all manager names
+
+SELECT DISTINCT E.name AS ManagerName
+FROM Employees E
+JOIN Dept D ON E.empid = D.Managerempid;
+
+-- 4. SQL query to find the age of all employees
+
+SELECT name, TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS Age
+FROM Employees;
+
+-- 5. Display all employees in descending order of age
+
+SELECT name, TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS Age
+FROM Employees
+ORDER BY Age DESC;
+
+-- 6. SQL query to find the names of all employees who work for “ERP project”
+
+SELECT E.name
+FROM Employees E
+JOIN Works W ON E.empid = W.empid
+WHERE W.Projectid = 501;
+
+-- 7. SQL query to find the names and cities of residence of all employees who work for “Banking project”
+
+SELECT E.name, E.city
+FROM Employees E
+JOIN Works W ON E.empid = W.empid
+JOIN Project P ON W.Projectid = P.Projectid
+WHERE P.title = 'Banking Project';
+
+-- 8. SQL query to display the senior person of “Testing Department”
+
+SELECT E.name
+FROM Employees E
+JOIN Dept D ON E.deptno = D.Deptno
+WHERE D.Name = 'Testing Department'
+ORDER BY E.date_of_joining ASC
+LIMIT 1;
+
+-- 9. SQL query to find the employees who are not having any project
+
+SELECT E.name
+FROM Employees E
+LEFT JOIN Works W ON E.empid = W.empid
+WHERE W.empid IS NULL;
+
+-- 10. Create a view containing the total number of employees whose project location is “Pune”
+
+CREATE VIEW EmployeesInPune AS
+SELECT COUNT(*) AS TotalEmployeesInPune
+FROM Employees E
+JOIN Works W ON E.empid = W.empid
+JOIN Project P ON W.Projectid = P.Projectid
+WHERE P.city = 'Pune';
+
+-- Calculate total traveling allowance for all using view (1000 Rs each)
+
+SELECT TotalEmployeesInPune * 1000 AS TotalTravelingAllowance
+FROM EmployeesInPune;
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+#######################################################################################
+
+
+-- 2. Insert data into each table (continuation)
+
+-- Insert into Department table
+INSERT INTO Dept VALUES (1, 'IT Department', 'New York', NULL);
+
+-- Insert into Employees table
+INSERT INTO Employees VALUES (101, 'John Doe', '123 Main St', 'New York', '1990-01-01', '2020-01-01', 'M', 60000, 1);
+INSERT INTO Employees VALUES (102, 'Jane Doe', '456 Oak St', 'Pune', '1988-05-15', '2019-02-01', 'F', 70000, 1);
+
+-- 3. Delete the "Testing Project" entry from Project (continuation)
+DELETE FROM Project WHERE title = 'Testing Project';
+
+-- 4. SQL query to display all employees having salary > 50000 (continuation)
+SELECT * FROM Employees WHERE salary > 50000;
+
+-- 5. SQL query to display all projects of “Pune” (continuation)
+SELECT * FROM Project WHERE city = 'Pune';
+
+-- 6. SQL query to display all dependants of employee id 102 (continuation)
+SELECT * FROM Dependant WHERE empid = 102;
+
+-- 7. SQL query to find the number of employees working on each project (continuation)
+SELECT Projectid, COUNT(empid) AS NumEmployees
+FROM Works
+GROUP BY Projectid;
+
+-- 8. SQL query to find the average salary of each department (continuation)
+SELECT D.deptno, AVG(E.salary) AS AvgSalary
+FROM Dept D
+JOIN Employees E ON D.Deptno = E.deptno
+GROUP BY D.deptno;
+
+-- 9. SQL query to display the senior person of “Testing Department” (continuation)
+SELECT E.name
+FROM Employees E
+JOIN Dept D ON E.deptno = D.Deptno
+WHERE D.Name = 'Testing Department'
+ORDER BY E.date_of_joining ASC
+LIMIT 1;
+
+-- 10. Create a view containing the total number of employees whose project location is “Pune” (continuation)
+CREATE VIEW EmployeesInPune AS
+SELECT COUNT(*) AS TotalEmployeesInPune
+FROM Employees E
+JOIN Works W ON E.empid = W.empid
+JOIN Project P ON W.Projectid = P.Projectid
+WHERE P.city = 'Pune';
+
+-- Example: Calculate total traveling allowance for all using view (1000 Rs each)
+SELECT TotalEmployeesInPune * 1000 AS TotalTravelingAllowance
+FROM EmployeesInPune;
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+#######################################################################################
+
+
+-- 2. Insert data into each table
+
+-- Insert into Department table
+INSERT INTO Dept VALUES (1, 'IT Department', 'Building 1', NULL);
+
+-- Insert into Employees table
+INSERT INTO Employees VALUES (101, 'John Doe', '123 Main St', 'New York', '1990-01-01', '2020-01-01', 'M', 60000, 1, '1234567890');
+INSERT INTO Employees VALUES (102, 'Jane Smith', '456 Oak St', 'Building 1', '1988-05-15', '2019-02-01', 'F', 70000, 1, '9876543210');
+
+-- Insert into Project table
+INSERT INTO Project VALUES (501, 'ERP Project', 'New York');
+INSERT INTO Project VALUES (502, 'Banking Project', 'Building 1');
+
+-- Insert into Works table
+INSERT INTO Works VALUES (101, 501, 40);
+INSERT INTO Works VALUES (102, 502, 30);
+
+-- Insert into Dependant table
+INSERT INTO Dependant VALUES (101, 'Jane Doe Jr.', 5, 'Child');
+INSERT INTO Dependant VALUES (102, 'John Doe Sr.', 60, 'Parent');
+
+-- 3. Add column Mobile number in employee table
+-- Already added in the table creation.
+
+-- 4. Update mobile numbers for each employee.
+-- For illustration purposes, updating mobile numbers for all employees.
+UPDATE Employees SET Mobile = '5555555555';
+
+-- 5. SQL query to list employees having name starting with ‘S’
+SELECT * FROM Employees WHERE name LIKE 'S%';
+
+-- 6. SQL query to list departments having location ‘Building 1’
+SELECT * FROM Dept WHERE Location = 'Building 1';
+
+-- 7. SQL query to list employees having joining year 2019 to 2020
+SELECT * FROM Employees WHERE YEAR(date_of_joining) BETWEEN 2019 AND 2020;
+
+-- 8. SQL query to find names and cities of residence of employees working for “Banking project”
+SELECT E.name, E.city
+FROM Employees E
+JOIN Works W ON E.empid = W.empid
+JOIN Project P ON W.Projectid = P.Projectid
+WHERE P.title = 'Banking Project';
+
+-- 9. SQL query to find time required for “Banking project”
+SELECT W.empid, W.Projectid, W.total_hrs_worked, P.title
+FROM Works W
+JOIN Project P ON W.Projectid = P.Projectid
+WHERE P.title = 'Banking Project';
+
+-- 10. SQL query to find all employees in the database who live in the same cities as the project for which they work
+SELECT E.name, E.city, P.title
+FROM Employees E
+JOIN Works W ON E.empid = W.empid
+JOIN Project P ON W.Projectid = P.Projectid
+WHERE E.city = P.city;
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
